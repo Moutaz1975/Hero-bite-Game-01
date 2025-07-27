@@ -1,0 +1,3407 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Bite Burger - لعبة بطل البرجر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        heroGreen: '#2D8A3E',
+                        heroYellow: '#F5D905',
+                        heroRed: '#E53E3E',
+                        legendary: '#FF6B35',
+                        rare: '#9B59B6',
+                        common: '#3498DB'
+                    },
+                    fontFamily: {
+                        arabic: ['Tajawal', 'Arial', 'sans-serif']
+                    },
+                    animation: {
+                        'mobile-bounce': 'mobile-bounce 0.6s ease-in-out',
+                        'challenge-pulse': 'challenge-pulse 2s infinite',
+                        'daily-glow': 'daily-glow 1.5s infinite alternate',
+                        'logo-glow': 'logo-glow 3s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Tajawal', Arial, sans-serif;
+        }
+        
+        .game-canvas {
+            border: 3px solid #2D8A3E;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            position: relative;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        .hero-character {
+            width: 60px;
+            height: 60px;
+            background-image: url('https://pfst.cf2.poecdn.net/base/image/11dc23dbfda38f7115386a40b84fc29837de67f7d6bdb1605cb93b8b9ce96332?w=212&h=273');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: filter 0.2s ease, transform 0.1s ease;
+        }
+        
+        .ingredient {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .ingredient.common {
+            background: linear-gradient(135deg, #3498DB, #5DADE2);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+        
+        .ingredient.rare {
+            background: linear-gradient(135deg, #9B59B6, #BB8FCE);
+            box-shadow: 0 0 15px rgba(155, 89, 182, 0.7);
+            animation: rarePulse 2s infinite;
+        }
+        
+        .ingredient.legendary {
+            background: linear-gradient(135deg, #FF6B35, #FF8C69);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.9);
+            animation: legendaryGlow 1.5s infinite;
+        }
+        
+        @keyframes rarePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(155, 89, 182, 0.7); }
+            50% { transform: scale(1.1); box-shadow: 0 0 25px rgba(155, 89, 182, 1); }
+        }
+        
+        @keyframes legendaryGlow {
+            0%, 100% { transform: scale(1) rotate(0deg); box-shadow: 0 0 20px rgba(255, 107, 53, 0.9); }
+            50% { transform: scale(1.15) rotate(180deg); box-shadow: 0 0 30px rgba(255, 107, 53, 1); }
+        }
+
+        /* تحسين تأثيرات الشعار */
+        @keyframes logo-glow {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg); 
+                box-shadow: 0 0 20px rgba(245, 217, 5, 0.6), 0 0 40px rgba(45, 138, 62, 0.4), 0 0 60px rgba(255, 107, 53, 0.3); 
+            }
+            33% { 
+                transform: scale(1.02) rotate(120deg); 
+                box-shadow: 0 0 25px rgba(45, 138, 62, 0.6), 0 0 45px rgba(255, 107, 53, 0.4), 0 0 65px rgba(245, 217, 5, 0.3); 
+            }
+            66% { 
+                transform: scale(1.02) rotate(240deg); 
+                box-shadow: 0 0 25px rgba(255, 107, 53, 0.6), 0 0 45px rgba(245, 217, 5, 0.4), 0 0 65px rgba(45, 138, 62, 0.3); 
+            }
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-glow-effect {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #F5D905, #2D8A3E, #FF6B35, #F5D905);
+            opacity: 0.8;
+            animation: logo-glow 3s ease-in-out infinite;
+            z-index: -1;
+            filter: blur(8px);
+        }
+
+        .logo-image {
+            position: relative;
+            z-index: 10;
+            background: white;
+            border-radius: 50%;
+            padding: 4px;
+        }
+        
+        .points-popup {
+            position: absolute;
+            font-weight: bold;
+            font-size: 18px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+            z-index: 20;
+            animation: pointsFloat 2s ease-out forwards;
+        }
+        
+        @keyframes pointsFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FF6B35, #FFD700);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            z-index: 30;
+            animation: comboAppear 0.5s ease-out;
+        }
+        
+        @keyframes comboAppear {
+            0% { transform: translateX(-50%) scale(0); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+        
+        .level-up-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 100;
+            animation: levelUpAnimation 2s ease-out forwards;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+        
+        @keyframes levelUpAnimation {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-180deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0; }
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, #3498DB, #2ECC71);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .xp-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: xpShine 2s infinite;
+        }
+        
+        @keyframes xpShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .enemy {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(255, 0, 0, 0.2);
+            animation: pulse 1s infinite;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .spin {
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .bounce {
+            animation: bounce 0.5s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Enhanced Mobile Animations */
+        @keyframes mobile-bounce {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            75% { transform: scale(0.98); }
+        }
+
+        @keyframes challenge-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+        }
+
+        @keyframes daily-glow {
+            0% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(52, 152, 219, 0.8), 0 0 35px rgba(52, 152, 219, 0.3); }
+        }
+
+        .modal-overlay {
+            backdrop-filter: blur(5px);
+        }
+
+        .sound-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #2D8A3E;
+        }
+
+        .sound-control:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .instructions-btn {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #5D5CDE;
+        }
+
+        .instructions-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        /* Enhanced Daily Challenges Styles */
+        .challenges-btn {
+            position: fixed;
+            top: 140px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 215, 0, 0.9);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #FFD700;
+            animation: challenge-pulse 2s infinite;
+        }
+
+        .challenges-btn:hover {
+            background: rgba(255, 215, 0, 1);
+            transform: scale(1.1);
+        }
+
+        .challenge-card {
+            background: linear-gradient(135deg, #3498DB, #2980B9);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            color: white;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .challenge-card.completed {
+            background: linear-gradient(135deg, #27AE60, #2ECC71);
+            border-color: #FFD700;
+            animation: daily-glow 1.5s infinite alternate;
+        }
+
+        .challenge-card.active {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .challenge-progress {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .challenge-progress-bar {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .collect-effect {
+            animation: collectPulse 0.3s ease-out;
+        }
+
+        @keyframes collectPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .damage-effect {
+            animation: damageShake 0.5s ease-out;
+        }
+
+        @keyframes damageShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .leaderboard-current {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            dark:bg-gray-800;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .multiplier-display {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #E74C3C, #FF6B35);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 25;
+            animation: multiplierPulse 1s infinite;
+        }
+
+        @keyframes multiplierPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 200px;
+            right: 20px;
+            z-index: 1000;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .connected {
+            background: linear-gradient(135deg, #2ECC71, #27AE60);
+            color: white;
+        }
+
+        .disconnected {
+            background: linear-gradient(135deg, #E74C3C, #C0392B);
+            color: white;
+        }
+
+        .disabled {
+            background: linear-gradient(135deg, #F39C12, #E67E22);
+            color: white;
+        }
+
+        .offline {
+            background: linear-gradient(135deg, #95A5A6, #7F8C8D);
+            color: white;
+        }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .setup-notice {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #3498DB, #2980B9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .game-paused {
+            filter: blur(2px);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .verification-code-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .verification-code-input:focus {
+            border-color: #5D5CDE;
+            box-shadow: 0 0 10px rgba(93, 92, 222, 0.3);
+            outline: none;
+        }
+
+        .verification-code-input.filled {
+            border-color: #2ECC71;
+            background-color: #f8fff9;
+        }
+
+        .verification-timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #E53E3E;
+        }
+
+        .email-sent-animation {
+            animation: emailSent 1s ease-out;
+        }
+
+        @keyframes emailSent {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Enhanced loading and message styles */
+        .sending-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .sending-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #5D5CDE;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: loadingSpin 1s linear infinite;
+        }
+
+        @keyframes loadingSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            dark:bg-gray-800;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            animation: toastAppear 0.3s ease-out;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .message-toast.success {
+            border-left: 5px solid #2ECC71;
+        }
+
+        .message-toast.error {
+            border-left: 5px solid #E74C3C;
+        }
+
+        @keyframes toastAppear {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .button-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .button-loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #ffffff40;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: buttonSpinner 1s linear infinite;
+        }
+
+        @keyframes buttonSpinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* تحسينات جديدة للشاشة التعليمية */
+        .instruction-highlight {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .game-start-pulse {
+            animation: gameStartPulse 2s infinite;
+        }
+
+        @keyframes gameStartPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(45, 138, 62, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(45, 138, 62, 0.6); }
+        }
+
+        .pause-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 40;
+            animation: pausePulse 1s infinite;
+        }
+
+        @keyframes pausePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 640px) {
+            .game-canvas {
+                height: 70vh;
+                min-height: 300px;
+            }
+            
+            .hero-character {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .ingredient, .enemy {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+            
+            .sound-control, .instructions-btn, .challenges-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .connection-status {
+                font-size: 10px;
+                padding: 6px 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .logo-container {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .challenge-card {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .logo-container {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        /* Touch-friendly enhancements */
+        .touch-btn {
+            min-height: 44px;
+            min-width: 44px;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .swipe-area {
+            touch-action: pan-x;
+        }
+
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .focus-visible {
+            outline: 2px solid #5D5CDE;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
+    <!-- Enhanced Supabase Setup Notice -->
+    <div id="setupNotice" class="setup-notice hidden">
+        🗄️ قاعدة البيانات متصلة بـ Supabase لحفظ البيانات والخصومات.
+        <button onclick="document.getElementById('setupNotice').classList.add('hidden')" class="float-right text-lg">×</button>
+    </div>
+
+    <!-- Sound Control Button -->
+    <div id="soundControl" class="sound-control touch-btn" onclick="toggleSound()" role="button" aria-label="تشغيل/إيقاف الصوت">
+        <span id="soundIcon">🔊</span>
+    </div>
+
+    <!-- Instructions Button -->
+    <div id="instructionsBtn" class="instructions-btn touch-btn" onclick="showInstructions()" role="button" aria-label="عرض التعليمات">
+        <span>📖</span>
+    </div>
+
+    <!-- Daily Challenges Button -->
+    <div id="challengesBtn" class="challenges-btn touch-btn" onclick="showChallenges()" role="button" aria-label="التحديات اليومية">
+        <span>🏆</span>
+    </div>
+
+    <!-- Enhanced Connection Status -->
+    <div id="connectionStatus" class="connection-status disconnected">
+        📡 جاري الاتصال...
+    </div>
+
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="fixed inset-0 bg-gradient-to-br from-heroYellow to-heroGreen flex items-start justify-center z-50 overflow-y-auto py-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 my-4 fade-in min-h-fit">
+            
+            <!-- 🎁 Header مع الشعار والعرض -->
+            <div class="bg-gradient-to-r from-legendary to-heroYellow text-white text-center px-6 pt-6 pb-4 rounded-t-xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-legendary to-heroYellow opacity-20 animate-pulse"></div>
+                <div class="relative z-10">
+                    <!-- الشعار والعنوان الرئيسي -->
+                    <div class="flex flex-col items-center mb-4">
+                        <div class="logo-container relative mb-4 w-32 h-32 flex items-center justify-center">
+                            <!-- تأثير الإضاءة المتحركة - خلف الشعار -->
+                            <div class="logo-glow-effect"></div>
+                            <!-- الشعار الرئيسي -->
+                            <img src="https://pfst.cf2.poecdn.net/base/image/1d4911beae616d07605221da483bbf02c55b7beee8d518b6f7756f978b94b5d3?w=1000&amp;h=1000" alt="Hero Bite Burger" class="logo-image w-28 h-28 rounded-full shadow-2xl border-4 border-white transform hover:scale-105 transition-all duration-300" style="filter: brightness(1.1) contrast(1.2) saturate(1.1);">
+                        </div>
+                        <h1 class="text-3xl font-bold text-white drop-shadow-lg">Hero Bite Burger</h1>
+                        <p class="text-base opacity-95 font-semibold">🇴🇲 سلطنة عُمان</p>
+                    </div>
+                    
+                    <!-- العرض الرئيسي -->
+                    <div class="bg-white bg-opacity-15 rounded-lg p-4 mb-2">
+                        <div class="text-3xl mb-2 animate-bounce">🎁</div>
+                        <h2 class="text-xl font-bold mb-2">خصومات حقيقية حتى 50%!</h2>
+                        <p class="text-base font-semibold mb-2">🍔 اصنع 3 برجرز = كود خصم فوري</p>
+                        <div class="bg-white bg-opacity-25 rounded-full px-3 py-1 text-sm font-bold inline-block">
+                            ⏰ عرض محدود - اليوم فقط!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Challenge Banner -->
+            <div id="dailyChallengeBanner" class="hidden bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 text-center border-b">
+                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                    <span class="text-lg">🏆</span>
+                    <span class="font-bold">تحدي اليوم:</span>
+                    <span id="todayChallenge" class="text-sm"></span>
+                </div>
+            </div>
+
+            <!-- 🎮 شرح سريع للعبة -->
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900 dark:to-green-900 border-b">
+                <div class="text-center">
+                    <div class="flex justify-center items-center space-x-2 space-x-reverse mb-2">
+                        <span class="text-2xl">🥬</span>
+                        <span class="text-2xl">🍅</span>
+                        <span class="text-2xl">🧀</span>
+                        <span class="text-2xl">🥩</span>
+                        <span class="text-xl mx-2">→</span>
+                        <span class="text-2xl">🍔</span>
+                        <span class="text-xl mx-2">→</span>
+                        <span class="text-2xl">🎟️</span>
+                    </div>
+                    <p class="text-sm font-bold text-heroGreen">اجمع المكونات → اصنع برجر → احصل على خصم!</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">لعبة ممتعة + مكافأة حقيقية</p>
+                </div>
+            </div>
+            
+            <!-- ⚡ نموذج التسجيل -->
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <h3 class="text-lg font-bold text-heroGreen mb-2">
+                        ⚡ ما تضيع العرض! خلينا نبدأ الآن 👇
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        3 خطوات بسيطة ← كود خصم جاهز!
+                    </p>
+                </div>
+                
+                <form id="playerForm" class="space-y-4">
+                    <!-- خطوة 1 - الاسم -->
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 shadow-lg">1</div>
+                            <label for="playerName" class="text-sm font-bold text-blue-700 dark:text-blue-300">الاسم (اختياري)</label>
+                        </div>
+                        <input type="text" id="playerName" class="w-full px-4 py-3 text-base border-2 border-blue-200 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" placeholder="مثال: محمد" aria-label="اسم اللاعب">
+                    </div>
+                    
+                    <!-- خطوة 2 - الإيميل -->
+                    <div class="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 shadow-lg">2</div>
+                            <label for="playerEmail" class="text-sm font-bold text-green-700 dark:text-green-300">إيميلك للكود 📧 <span class="text-red-500">*</span></label>
+                        </div>
+                        <input type="email" id="playerEmail" required="" class="w-full px-4 py-3 text-base border-2 border-green-200 dark:border-green-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200" placeholder="example@gmail.com" aria-label="البريد الإلكتروني" aria-required="true">
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center">
+                            <span class="mr-1">✅</span>
+                            هنا هيوصلك رمز التحقق
+                        </p>
+                    </div>
+                    
+                    <!-- خطوة 3 - رقم الجوال -->
+                    <div class="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 shadow-lg">3</div>
+                            <label for="playerPhone" class="text-sm font-bold text-orange-700 dark:text-orange-300">رقمك للخصم 📱 <span class="text-red-500">*</span></label>
+                        </div>
+                        <input type="tel" id="playerPhone" required="" class="w-full px-4 py-3 text-base border-2 border-orange-200 dark:border-orange-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200" placeholder="91234567" pattern="[0-9]{8}" maxlength="8" aria-label="رقم الجوال" aria-required="true">
+                        <p class="text-xs text-orange-600 dark:text-orange-400 mt-2 flex items-center">
+                            <span class="mr-1">🇴🇲</span>
+                            رقم عُماني (8 أرقام فقط)
+                        </p>
+                    </div>
+                    
+                    <!-- تحذير الكود اليومي -->
+                    <div id="dailyCodeWarning" class="hidden bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 border border-yellow-300 dark:border-yellow-600 text-yellow-800 dark:text-yellow-200 px-4 py-3 rounded-lg text-sm">
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">⚠️</span>
+                            <span>عندك كود من اليوم! هنستبدله بكود جديد إذا كملت 3 برجرز.</span>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- أزرار اختيار اللعبة -->
+                <div class="mt-8">
+                    <div class="text-center mb-4">
+                        <h4 class="text-base font-bold text-gray-700 dark:text-gray-300 mb-1">🎮 اختار طريقة لعبك:</h4>
+                        <p class="text-xs text-gray-500">كلهم يوصلوك للخصم!</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button type="button" id="storyModeBtn" onclick="sendVerificationCode('story')" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg transform hover:scale-105 hover:shadow-xl touch-btn">
+                            <span class="mr-3 text-2xl">📖</span>
+                            <div class="text-right">
+                                <div class="text-lg">وضع القصة</div>
+                                <div class="text-sm opacity-90">4 مراحل مثيرة</div>
+                            </div>
+                        </button>
+                        
+                        <button type="button" id="survivalModeBtn" onclick="sendVerificationCode('survival')" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg transform hover:scale-105 hover:shadow-xl touch-btn">
+                            <span class="mr-3 text-2xl">⚔️</span>
+                            <div class="text-right">
+                                <div class="text-lg">وضع البقاء</div>
+                                <div class="text-sm opacity-90">تحدي بلا نهاية</div>
+                            </div>
+                        </button>
+                        
+                        <button type="button" id="timeAttackModeBtn" onclick="sendVerificationCode('timeAttack')" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg transform hover:scale-105 hover:shadow-xl touch-btn">
+                            <span class="mr-3 text-2xl">⏱️</span>
+                            <div class="text-right">
+                                <div class="text-lg">وضع السرعة</div>
+                                <div class="text-sm opacity-90">60 ثانية حماس</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- معلومات التواصل والتعليمات -->
+                <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <div class="text-xs text-gray-500">
+                            <p class="flex items-center mb-1">
+                                <span class="mr-1">📍</span>
+                                Hero Bite Burger - عُمان
+                            </p>
+                            <p class="flex items-center">
+                                <span class="mr-1">📞</span>
+                                +968 9221 2012
+                            </p>
+                        </div>
+                        <button onclick="showInstructions()" class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 px-4 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 text-sm font-medium touch-btn">
+                            📖 التعليمات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Verification Screen -->
+    <div id="verificationScreen" class="hidden fixed inset-0 bg-gradient-to-br from-heroYellow to-heroGreen flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 slide-up">
+            <div class="text-center mb-6">
+                <div class="text-6xl mb-4 email-sent-animation">📧</div>
+                <h2 class="text-2xl font-bold text-heroGreen mb-2">تحقق من إيميلك</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">
+                    تم إرسال رمز التحقق المكون من 6 أرقام إلى:
+                </p>
+                <p id="sentEmailDisplay" class="font-bold text-primary mt-1"></p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-3 text-center">أدخل رمز التحقق</label>
+                    <div class="flex justify-center space-x-2 space-x-reverse" dir="ltr">
+                        <input type="text" id="code1" class="verification-code-input" maxlength="1" oninput="handleCodeInput(1)" onkeydown="handleCodeKeydown(event, 1)" aria-label="رمز التحقق - الرقم الأول">
+                        <input type="text" id="code2" class="verification-code-input" maxlength="1" oninput="handleCodeInput(2)" onkeydown="handleCodeKeydown(event, 2)" aria-label="رمز التحقق - الرقم الثاني">
+                        <input type="text" id="code3" class="verification-code-input" maxlength="1" oninput="handleCodeInput(3)" onkeydown="handleCodeKeydown(event, 3)" aria-label="رمز التحقق - الرقم الثالث">
+                        <input type="text" id="code4" class="verification-code-input" maxlength="1" oninput="handleCodeInput(4)" onkeydown="handleCodeKeydown(event, 4)" aria-label="رمز التحقق - الرقم الرابع">
+                        <input type="text" id="code5" class="verification-code-input" maxlength="1" oninput="handleCodeInput(5)" onkeydown="handleCodeKeydown(event, 5)" aria-label="رمز التحقق - الرقم الخامس">
+                        <input type="text" id="code6" class="verification-code-input" maxlength="1" oninput="handleCodeInput(6)" onkeydown="handleCodeKeydown(event, 6)" aria-label="رمز التحقق - الرقم السادس">
+                    </div>
+                </div>
+                
+                <div id="verificationError" class="hidden bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm text-center">
+                    ❌ رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.
+                </div>
+                
+                <div class="text-center">
+                    <div id="resendTimer" class="verification-timer mb-3">
+                        يمكنك إعادة الإرسال خلال: <span id="timerSeconds">60</span> ثانية
+                    </div>
+                    <button id="resendButton" onclick="resendVerificationCode()" class="hidden w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 touch-btn">
+                        📧 إعادة إرسال الرمز
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <button onclick="verifyCode()" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 touch-btn">
+                        ✅ تحقق وابدأ اللعب
+                    </button>
+                    
+                    <button onclick="backToWelcome()" class="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold py-3 px-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 touch-btn">
+                        ← العودة
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center text-xs text-gray-500">
+                <p>💡 لم تستلم الرمز؟ تحقق من مجلد الرسائل المهملة (Spam)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Challenges Modal -->
+    <div id="challengesModal" class="hidden fixed inset-0 modal-overlay bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-4 slide-up">
+            <div class="p-6 max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-heroGreen flex items-center">
+                        <span class="mr-2">🏆</span>
+                        التحديات اليومية
+                    </h3>
+                    <button onclick="closeChallenges()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                </div>
+                
+                <div id="challengesList" class="space-y-4">
+                    <!-- Challenges will be loaded here -->
+                </div>
+                
+                <div class="mt-6 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900 dark:to-green-900 p-4 rounded-lg">
+                    <h4 class="font-bold mb-2 flex items-center">
+                        <span class="mr-2">🎁</span>
+                        مكافآت التحديات
+                    </h4>
+                    <ul class="text-sm space-y-1">
+                        <li>• 🥉 برونزي: +25 نقطة إضافية</li>
+                        <li>• 🥈 فضي: +50 نقطة إضافية</li>
+                        <li>• 🥇 ذهبي: +100 نقطة إضافية</li>
+                        <li>• 💎 ماسي: +5% خصم إضافي</li>
+                    </ul>
+                </div>
+                
+                <button onclick="closeChallenges()" class="w-full mt-6 bg-heroGreen hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg touch-btn">
+                    ابدأ اللعب! 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Instructions Modal -->
+    <div id="instructionsModal" class="hidden fixed inset-0 modal-overlay bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-4 slide-up">
+            <div class="p-6 max-h-screen overflow-y-auto">
+                <h3 class="text-2xl font-bold text-heroGreen mb-4 text-center">📖 تعليمات اللعبة</h3>
+                
+                <div class="space-y-4 text-sm">
+                    <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2 flex items-center">
+                            <span class="mr-2">🎯</span>
+                            الهدف
+                        </h4>
+                        <p>اجمع المكونات الصحية لصنع 3 برجرز واحصل على خصومات حقيقية!</p>
+                    </div>
+                    
+                    <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2 flex items-center">
+                            <span class="mr-2">🎮</span>
+                            التحكم
+                        </h4>
+                        <ul class="space-y-1">
+                            <li>🖥️ الكمبيوتر: استخدم الأسهم أو A/D للحركة</li>
+                            <li>📱 الجوال: استخدم الأزرار أو اسحب على الشاشة</li>
+                            <li>⏸️ الإيقاف المؤقت: اضغط زر الإيقاف</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2 flex items-center">
+                            <span class="mr-2">🥗</span>
+                            المكونات والنقاط
+                        </h4>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="flex justify-between">
+                                <span>🥬 خس</span>
+                                <span class="font-bold text-blue-600">5 نقاط</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>🍅 طماطم</span>
+                                <span class="font-bold text-blue-600">8 نقاط</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>🧀 جبن</span>
+                                <span class="font-bold text-purple-600">12 نقطة</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>🥩 لحم</span>
+                                <span class="font-bold text-orange-600">20 نقطة</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2 flex items-center">
+                            <span class="mr-2">⚠️</span>
+                            تجنب الأطعمة الضارة
+                        </h4>
+                        <p>ابتعد عن 🥤 المشروبات الغازية و 🍟 البطاطس المقلية و 🍿 الفشار - ستفقد حياة!</p>
+                    </div>
+                    
+                    <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2 flex items-center">
+                            <span class="mr-2">💫</span>
+                            نظام الكومبو
+                        </h4>
+                        <ul class="space-y-1 text-xs">
+                            <li>• اجمع المكونات بسرعة لزيادة الكومبو</li>
+                            <li>• الكومبو يضاعف النقاط حتى x5</li>
+                            <li>• لديك 3 ثوانٍ بين كل مكون</li>
+                            <li>• خسارة حياة تعيد الكومبو للصفر</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-orange-50 dark:bg-orange-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2 flex items-center">
+                            <span class="mr-2">🎁</span>
+                            المكافآت
+                        </h4>
+                        <ul class="space-y-1 text-xs">
+                            <li>• كل برجر مكتمل = 50+ نقطة إضافية</li>
+                            <li>• 3 برجرز = عجلة الحظ للخصومات</li>
+                            <li>• خصومات حقيقية من 5% إلى 50%</li>
+                            <li>• ترقية المستوى تزيد المكافآت</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <button onclick="closeInstructions()" class="w-full mt-6 bg-heroGreen hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg touch-btn">
+                    فهمت! 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="hidden min-h-screen flex flex-col">
+        <div class="container mx-auto px-4 py-8 max-w-md">
+            <!-- Player Info -->
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-heroGreen mb-2">مرحباً <span id="playerNameDisplay"></span>!</h2>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">النقاط:</span>
+                            <span id="scoreDisplay" class="font-bold text-primary ml-2">0</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">الحيوات:</span>
+                            <span id="livesDisplay" class="font-bold text-heroRed ml-2">❤️❤️❤️</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">البرجرز:</span>
+                            <span id="burgersDisplay" class="font-bold text-heroGreen ml-2">0/3</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">المستوى:</span>
+                            <span id="levelDisplay" class="font-bold text-heroYellow ml-2">1</span>
+                        </div>
+                    </div>
+                    
+                    <!-- XP Bar -->
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                            <span>الخبرة</span>
+                            <span><span id="currentXP">0</span>/<span id="nextLevelXP">100</span></span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div id="xpBar" class="xp-bar h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Challenge Progress -->
+                    <div id="challengeProgress" class="hidden mt-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900 dark:to-orange-900 rounded-lg border border-yellow-200 dark:border-yellow-600">
+                        <div class="flex justify-between text-xs text-yellow-700 dark:text-yellow-300 mb-1">
+                            <span>🏆 تحدي اليوم</span>
+                            <span><span id="challengeCurrentProgress">0</span>/<span id="challengeTargetProgress">10</span></span>
+                        </div>
+                        <div class="w-full bg-yellow-200 dark:bg-yellow-800 rounded-full h-2">
+                            <div id="challengeProgressBar" class="challenge-progress-bar h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                        <p id="challengeDescription" class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">اجمع 10 مكونات</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Canvas -->
+            <div id="gameCanvas" class="game-canvas w-full h-96 mx-auto relative mb-6 swipe-area" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)" ontouchend="handleTouchEnd(event)">
+                <div id="hero" class="hero-character absolute bottom-4" style="left: 50%; transform: translateX(-50%);"></div>
+                
+                <!-- Game UI Elements -->
+                <div id="comboDisplay" class="hidden combo-display">
+                    كومبو ×<span id="comboCount">1</span>
+                </div>
+                
+                <div id="multiplierDisplay" class="hidden multiplier-display">
+                    مضاعف ×<span id="multiplierCount">1</span>
+                </div>
+                
+                <div id="pauseIndicator" class="hidden pause-indicator">
+                    ⏸️ متوقف مؤقتاً
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="space-y-4">
+                <!-- Movement Controls -->
+                <div class="flex justify-center space-x-4 space-x-reverse">
+                    <button id="leftBtn" class="bg-heroGreen hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 touch-btn" aria-label="تحريك لليسار">
+                        ←
+                    </button>
+                    <button id="pauseBtn" onclick="pauseGame()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 touch-btn" aria-label="إيقاف مؤقت">
+                        ⏸️
+                    </button>
+                    <button id="rightBtn" class="bg-heroGreen hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 touch-btn" aria-label="تحريك لليمين">
+                        →
+                    </button>
+                </div>
+                
+                <!-- Start Game Button -->
+                <button id="startGameBtn" onclick="startGame()" class="w-full bg-heroGreen hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg text-lg game-start-pulse touch-btn">
+                    🚀 ابدأ اللعب
+                </button>
+            </div>
+
+            <!-- Current Burger Progress -->
+            <div id="burgerProgress" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg">
+                <h3 class="text-lg font-bold text-center mb-3">🍔 البرجر الحالي</h3>
+                <div class="grid grid-cols-4 gap-2">
+                    <div id="lettuce-status" class="text-center p-2 rounded bg-gray-100 dark:bg-gray-700">
+                        <div class="text-2xl">🥬</div>
+                        <div class="text-xs">خس</div>
+                    </div>
+                    <div id="tomato-status" class="text-center p-2 rounded bg-gray-100 dark:bg-gray-700">
+                        <div class="text-2xl">🍅</div>
+                        <div class="text-xs">طماطم</div>
+                    </div>
+                    <div id="cheese-status" class="text-center p-2 rounded bg-gray-100 dark:bg-gray-700">
+                        <div class="text-2xl">🧀</div>
+                        <div class="text-xs">جبن</div>
+                    </div>
+                    <div id="meat-status" class="text-center p-2 rounded bg-gray-100 dark:bg-gray-700">
+                        <div class="text-2xl">🥩</div>
+                        <div class="text-xs">لحم</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="hidden fixed inset-0 bg-gradient-to-br from-heroYellow to-heroGreen flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 slide-up">
+            <div class="text-center">
+                <div id="gameOverEmoji" class="text-6xl mb-4">🎉</div>
+                <h2 id="gameOverTitle" class="text-2xl font-bold text-heroGreen mb-4">لعبة رائعة!</h2>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-primary" id="finalScore">0</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">النقاط النهائية</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-heroGreen" id="finalBurgers">0</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">برجرز مكتملة</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-heroYellow" id="finalLevel">1</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">المستوى النهائي</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-legendary" id="finalCombo">0</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">أفضل كومبو</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Challenge Completion -->
+                <div id="challengeCompletion" class="hidden mb-6 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900 dark:to-orange-900 rounded-lg border border-yellow-300 dark:border-yellow-600">
+                    <div class="flex items-center justify-center mb-2">
+                        <span class="text-2xl mr-2">🏆</span>
+                        <span class="font-bold text-yellow-700 dark:text-yellow-300">تهانينا! أكملت التحدي!</span>
+                    </div>
+                    <p id="challengeCompletionText" class="text-sm text-yellow-600 dark:text-yellow-400"></p>
+                </div>
+                
+                <div id="discountSection" class="hidden space-y-4">
+                    <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg">
+                        <p class="font-bold">🎊 مبروك! حققت 3 برجرز!</p>
+                        <p class="text-sm">استحقيت خصم على وجبتك القادمة</p>
+                    </div>
+                    
+                    <button onclick="spinDiscountWheel()" class="w-full bg-gradient-to-r from-legendary to-heroYellow text-white font-bold py-4 px-6 rounded-lg text-lg transition-all duration-300 hover:shadow-lg touch-btn">
+                        🎰 اسحب عجلة الحظ للخصم!
+                    </button>
+                </div>
+                
+                <div id="discountResult" class="hidden space-y-4">
+                    <div class="bg-gradient-to-r from-legendary to-heroYellow text-white p-6 rounded-lg">
+                        <div class="text-3xl font-bold mb-2" id="discountPercent">25%</div>
+                        <div class="text-lg">خصم على وجبتك القادمة!</div>
+                        <div class="text-sm opacity-90">كود الخصم:</div>
+                        <div class="text-xl font-bold" id="discountCode">HERO25</div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <p>📱 أرسل لقطة شاشة لموظف المطعم</p>
+                        <p>📅 صالح حتى نهاية اليوم</p>
+                        <p>📍 Hero Bite Burger - عُمان</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mt-6">
+                    <button onclick="playAgain()" class="w-full bg-heroGreen hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 touch-btn">
+                        🔄 العب مرة أخرى
+                    </button>
+                    
+                    <button onclick="shareResults()" class="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold py-3 px-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 touch-btn">
+                        📤 شارك النتيجة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode support
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // 🗄️ Enhanced Supabase Configuration with Retry Logic
+        const SUPABASE_CONFIG = {
+            url: 'https://tooxaqftgaucbuzfahsr.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvb3hhcWZ0Z2F1Y2J1emZhaHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1Mzc4MzQsImV4cCI6MjA2OTExMzgzNH0.yxrioBK_5nkvjYKnPTI4QQ9njsfVBAknJPoWlF-GruE'
+        };
+
+        // Initialize Supabase client
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            console.log('🗄️ Supabase client initialized successfully');
+        } catch (error) {
+            console.error('❌ Failed to initialize Supabase:', error);
+        }
+
+        // Audio Context for sound effects
+        let audioContext;
+        let soundEnabled = true;
+
+        // Email verification system
+        let verificationData = {
+            code: '',
+            email: '',
+            expiryTime: 0,
+            attempts: 0,
+            maxAttempts: 3,
+            gameMode: '',
+            verified: false
+        };
+
+        // 🏆 Daily Challenges System
+        const dailyChallenges = [
+            { id: 'collector', name: 'جامع المكونات', description: 'اجمع 50 مكون في جلسة واحدة', target: 50, type: 'ingredients', reward: 'برونزي' },
+            { id: 'speedster', name: 'السريع', description: 'اصنع 5 برجرز في أقل من دقيقتين', target: 5, type: 'speed_burgers', reward: 'فضي' },
+            { id: 'combo_master', name: 'سيد الكومبو', description: 'احصل على كومبو ×10 أو أكثر', target: 10, type: 'combo', reward: 'ذهبي' },
+            { id: 'survivor', name: 'الناجي', description: 'العب لمدة 5 دقائق دون فقدان حياة', target: 300, type: 'survival_time', reward: 'ماسي' },
+            { id: 'level_master', name: 'سيد المستويات', description: 'اوصل للمستوى 10', target: 10, type: 'level', reward: 'ذهبي' },
+            { id: 'perfect_game', name: 'اللعبة المثالية', description: 'اكمل 3 برجرز دون فقدان أي حياة', target: 3, type: 'perfect_burgers', reward: 'ماسي' }
+        ];
+
+        let currentDailyChallenge = null;
+        let challengeProgress = {
+            ingredients: 0,
+            burgers: 0,
+            maxCombo: 0,
+            survivalTime: 0,
+            level: 1,
+            perfectBurgers: 0,
+            livesLost: 0,
+            startTime: 0
+        };
+
+        // Enhanced Game state with offline support and better error handling
+        let gameState = {
+            player: { 
+                name: '', 
+                email: '',
+                phone: '', 
+                x: 270,
+                y: 360,
+                level: 1,
+                xp: 0,
+                nextLevelXP: 100,
+                verified: false
+            },
+            score: 0,
+            lives: 3,
+            level: 1,
+            burgers: 0,
+            totalBurgers: 0,
+            gameMode: '',
+            isPlaying: false,
+            isPaused: false,
+            startTime: 0,
+            endTime: 0,
+            currentBurgerIngredients: [false, false, false, false], // lettuce, tomato, cheese, meat
+            ingredients: [],
+            enemies: [],
+            timeLeft: 60,
+            gameTimer: null,
+            spawnTimer: null,
+            
+            // Advanced scoring system
+            combo: 0,
+            multiplier: 1,
+            maxMultiplier: 5,
+            comboTimer: null,
+            comboTimeLimit: 3000, // 3 seconds
+            bestCombo: 0,
+            lastCollectTime: 0,
+            
+            // Enhanced Supabase integration
+            supabaseConnected: false,
+            offlineMode: false,
+            retryAttempts: 0,
+            lastCodeToday: null,
+            dailyCodeUsed: false,
+            offlineData: [],
+            
+            // Detailed statistics
+            stats: {
+                totalPoints: 0,
+                lettuceCollected: 0,
+                tomatoCollected: 0,
+                cheeseCollected: 0,
+                meatCollected: 0,
+                bestCombo: 0,
+                gamesPlayed: 0,
+                totalPlayTime: 0,
+                totalIngredientsCollected: 0
+            },
+
+            // Touch controls
+            touchStartX: 0,
+            touchStartY: 0,
+            touchThreshold: 30
+        };
+
+        // 🗄️ Enhanced Supabase Functions with Retry Logic and Offline Support
+        async function testSupabaseConnection(retries = 3) {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    statusEl.innerHTML = `📡 جاري الاتصال... (${attempt}/${retries})`;
+                    statusEl.className = 'connection-status disabled';
+                    
+                    // Test connection with timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                    
+                    const { data, error } = await supabase
+                        .from('players_data')
+                        .select('id')
+                        .limit(1)
+                        .abortSignal(controller.signal);
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (error && error.code !== 'PGRST116') { // PGRST116 means table doesn't exist yet
+                        throw error;
+                    }
+                    
+                    gameState.supabaseConnected = true;
+                    statusEl.innerHTML = '✅ متصل بـ Supabase';
+                    statusEl.className = 'connection-status connected';
+                    
+                    console.log('✅ Supabase connection successful');
+                    
+                    // Initialize daily challenges after successful connection
+                    await initializeDailyChallenges();
+                    
+                    // Sync offline data if any
+                    await syncOfflineData();
+                    
+                    return true;
+                    
+                } catch (error) {
+                    console.error(`❌ Supabase connection attempt ${attempt} failed:`, error);
+                    
+                    if (attempt === retries) {
+                        gameState.supabaseConnected = false;
+                        statusEl.innerHTML = '📱 وضع دون اتصال';
+                        statusEl.className = 'connection-status offline';
+                        
+                        // Enable offline mode
+                        enableOfflineMode();
+                        return false;
+                    }
+                    
+                    // Wait before retry
+                    await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+                }
+            }
+        }
+
+        function enableOfflineMode() {
+            gameState.offlineMode = true;
+            document.getElementById('setupNotice').innerHTML = `
+                📱 وضع دون اتصال مُفعّل. سيتم حفظ البيانات محلياً وسيتم مزامنتها عند عودة الاتصال.
+                <button onclick="document.getElementById('setupNotice').classList.add('hidden')" class="float-right text-lg">×</button>
+            `;
+            document.getElementById('setupNotice').classList.remove('hidden');
+            
+            // Initialize offline challenges
+            initializeOfflineChallenges();
+            
+            console.log('🔄 Offline mode enabled');
+        }
+
+        async function savePlayerDataWithRetry(playerData, retries = 3) {
+            if (gameState.offlineMode) {
+                // Store data offline
+                saveDataOffline('players_data', playerData);
+                return;
+            }
+
+            if (!gameState.supabaseConnected || !supabase) {
+                console.log('📊 Supabase not connected, saving offline');
+                saveDataOffline('players_data', playerData);
+                return;
+            }
+
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const { data, error } = await supabase
+                        .from('players_data')
+                        .insert([playerData]);
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    console.log('✅ Player data saved to Supabase:', data);
+                    return data;
+                    
+                } catch (error) {
+                    console.error(`❌ Error saving player data (attempt ${attempt}):`, error);
+                    
+                    if (attempt === retries) {
+                        // Save offline as fallback
+                        saveDataOffline('players_data', playerData);
+                        console.log('💾 Data saved offline as fallback');
+                    } else {
+                        // Wait before retry
+                        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    }
+                }
+            }
+        }
+
+        async function savePlayerData() {
+            try {
+                const playTime = gameState.endTime ? 
+                    (gameState.endTime - gameState.startTime) / 1000 : 
+                    (Date.now() - gameState.startTime) / 1000;
+
+                const playerData = {
+                    player_name: gameState.player.name || 'لاعب مجهول',
+                    email: gameState.player.email,
+                    phone_number: gameState.player.phone,
+                    final_score: gameState.score,
+                    burgers_completed: gameState.burgers,
+                    player_level: gameState.level,
+                    game_mode: gameState.gameMode,
+                    play_time: Math.round(playTime),
+                    ingredients_collected: gameState.stats.totalIngredientsCollected,
+                    best_combo: gameState.bestCombo,
+                    challenge_completed: currentDailyChallenge ? checkChallengeCompletion() : false,
+                    created_at: new Date().toISOString()
+                };
+
+                await savePlayerDataWithRetry(playerData);
+                
+            } catch (error) {
+                console.error('❌ Error in savePlayerData:', error);
+                // Continue with game flow even if save fails
+            }
+        }
+
+        async function saveDiscountCodeWithRetry(discountData, retries = 3) {
+            if (gameState.offlineMode) {
+                saveDataOffline('discount_codes', discountData);
+                return;
+            }
+
+            if (!gameState.supabaseConnected || !supabase) {
+                console.log('📊 Supabase not connected, saving discount offline');
+                saveDataOffline('discount_codes', discountData);
+                return;
+            }
+
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const { data, error } = await supabase
+                        .from('discount_codes')
+                        .insert([discountData]);
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    console.log('✅ Discount code saved to Supabase:', data);
+                    return data;
+                    
+                } catch (error) {
+                    console.error(`❌ Error saving discount code (attempt ${attempt}):`, error);
+                    
+                    if (attempt === retries) {
+                        saveDataOffline('discount_codes', discountData);
+                        console.log('💾 Discount code saved offline as fallback');
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    }
+                }
+            }
+        }
+
+        async function saveDiscountCode(discountPercent, discountCode) {
+            try {
+                const today = new Date();
+                const expiryDate = new Date();
+                expiryDate.setDate(today.getDate() + 1); // Expires tomorrow
+
+                const discountData = {
+                    player_name: gameState.player.name || 'لاعب مجهول',
+                    email: gameState.player.email,
+                    phone_number: gameState.player.phone,
+                    discount_code: discountCode,
+                    discount_percent: discountPercent,
+                    issued_date: today.toISOString().split('T')[0],
+                    expiry_date: expiryDate.toISOString().split('T')[0],
+                    final_score: gameState.score,
+                    player_level: gameState.level,
+                    challenge_bonus: currentDailyChallenge && checkChallengeCompletion() ? getChallengeRewardBonus() : 0,
+                    created_at: new Date().toISOString()
+                };
+
+                await saveDiscountCodeWithRetry(discountData);
+                
+            } catch (error) {
+                console.error('❌ Error saving discount code:', error);
+            }
+        }
+
+        function saveDataOffline(table, data) {
+            try {
+                const offlineKey = `heroburger_offline_${table}`;
+                let offlineData = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                
+                data.offline_timestamp = Date.now();
+                offlineData.push(data);
+                
+                localStorage.setItem(offlineKey, JSON.stringify(offlineData));
+                console.log(`💾 ${table} data saved offline`);
+                
+            } catch (error) {
+                console.error('❌ Error saving data offline:', error);
+            }
+        }
+
+        async function syncOfflineData() {
+            if (!gameState.supabaseConnected) return;
+
+            try {
+                const tables = ['players_data', 'discount_codes'];
+                
+                for (const table of tables) {
+                    const offlineKey = `heroburger_offline_${table}`;
+                    const offlineData = JSON.parse(localStorage.getItem(offlineKey) || '[]');
+                    
+                    if (offlineData.length > 0) {
+                        console.log(`🔄 Syncing ${offlineData.length} offline ${table} records`);
+                        
+                        for (const record of offlineData) {
+                            // Remove offline timestamp before syncing
+                            delete record.offline_timestamp;
+                            
+                            try {
+                                const { error } = await supabase
+                                    .from(table)
+                                    .insert([record]);
+                                
+                                if (error) throw error;
+                                
+                            } catch (syncError) {
+                                console.error(`❌ Error syncing ${table} record:`, syncError);
+                                // Keep record for next sync attempt
+                                continue;
+                            }
+                        }
+                        
+                        // Clear synced data
+                        localStorage.removeItem(offlineKey);
+                        console.log(`✅ ${table} offline data synced and cleared`);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Error syncing offline data:', error);
+            }
+        }
+
+        async function checkDailyCodeUsage(phone) {
+            if (gameState.offlineMode) {
+                console.log('📱 Offline mode: skipping daily code check');
+                return;
+            }
+
+            if (!gameState.supabaseConnected || !supabase) {
+                console.log('📊 Supabase not connected, skipping daily check');
+                return;
+            }
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                
+                const { data, error } = await supabase
+                    .from('discount_codes')
+                    .select('discount_code, discount_percent, issued_date')
+                    .eq('phone_number', phone)
+                    .eq('issued_date', today)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data && data.length > 0) {
+                    gameState.dailyCodeUsed = true;
+                    gameState.lastCodeToday = data[0];
+                    
+                    // Show warning
+                    const warningEl = document.getElementById('dailyCodeWarning');
+                    warningEl.innerHTML = `
+                        ⚠️ تم إنشاء كود خصم ${data[0].discount_percent}% لهذا الرقم اليوم (${data[0].discount_code}). 
+                        سيتم استبدال الكود السابق إذا أكملت 3 برجرز.
+                    `;
+                    warningEl.classList.remove('hidden');
+                    
+                    console.log('⚠️ Daily code already used:', data[0]);
+                } else {
+                    gameState.dailyCodeUsed = false;
+                    gameState.lastCodeToday = null;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error checking daily code usage:', error);
+                // Continue without showing warning
+            }
+        }
+
+        // 🏆 Daily Challenges Functions
+        async function initializeDailyChallenges() {
+            try {
+                // Get today's challenge (based on day of year)
+                const today = new Date();
+                const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+                const challengeIndex = dayOfYear % dailyChallenges.length;
+                
+                currentDailyChallenge = { ...dailyChallenges[challengeIndex] };
+                
+                // Check if challenge was completed today
+                await checkDailyChallengeCompletion();
+                
+                // Update UI
+                updateDailyChallengeBanner();
+                
+                console.log('🏆 Daily challenge initialized:', currentDailyChallenge);
+                
+            } catch (error) {
+                console.error('❌ Error initializing daily challenges:', error);
+                initializeOfflineChallenges();
+            }
+        }
+
+        function initializeOfflineChallenges() {
+            // Fallback for offline mode
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const challengeIndex = dayOfYear % dailyChallenges.length;
+            
+            currentDailyChallenge = { ...dailyChallenges[challengeIndex] };
+            currentDailyChallenge.completed = false;
+            
+            updateDailyChallengeBanner();
+            console.log('🏆 Offline daily challenge initialized:', currentDailyChallenge);
+        }
+
+        async function checkDailyChallengeCompletion() {
+            if (!gameState.supabaseConnected || !currentDailyChallenge) return;
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                
+                const { data, error } = await supabase
+                    .from('daily_challenges')
+                    .select('*')
+                    .eq('phone_number', gameState.player.phone)
+                    .eq('challenge_id', currentDailyChallenge.id)
+                    .eq('completion_date', today)
+                    .limit(1);
+
+                if (error) throw error;
+
+                currentDailyChallenge.completed = data && data.length > 0;
+                
+            } catch (error) {
+                console.error('❌ Error checking daily challenge completion:', error);
+                currentDailyChallenge.completed = false;
+            }
+        }
+
+        function updateDailyChallengeBanner() {
+            if (!currentDailyChallenge) return;
+
+            const banner = document.getElementById('dailyChallengeBanner');
+            const challengeText = document.getElementById('todayChallenge');
+            
+            if (currentDailyChallenge.completed) {
+                challengeText.textContent = `✅ ${currentDailyChallenge.name} (مكتمل)`;
+                banner.className = 'bg-gradient-to-r from-green-400 to-green-600 text-white px-6 py-3 text-center border-b';
+            } else {
+                challengeText.textContent = currentDailyChallenge.name;
+                banner.className = 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 text-center border-b';
+            }
+            
+            banner.classList.remove('hidden');
+        }
+
+        function updateChallengeProgress() {
+            if (!currentDailyChallenge || currentDailyChallenge.completed) return;
+
+            let progress = 0;
+            
+            switch (currentDailyChallenge.type) {
+                case 'ingredients':
+                    progress = challengeProgress.ingredients;
+                    break;
+                case 'speed_burgers':
+                    const timeElapsed = (Date.now() - challengeProgress.startTime) / 1000;
+                    if (challengeProgress.burgers >= currentDailyChallenge.target && timeElapsed <= 120) {
+                        progress = currentDailyChallenge.target;
+                    } else {
+                        progress = timeElapsed <= 120 ? challengeProgress.burgers : 0;
+                    }
+                    break;
+                case 'combo':
+                    progress = challengeProgress.maxCombo;
+                    break;
+                case 'survival_time':
+                    progress = challengeProgress.livesLost === 0 ? challengeProgress.survivalTime : 0;
+                    break;
+                case 'level':
+                    progress = challengeProgress.level;
+                    break;
+                case 'perfect_burgers':
+                    progress = challengeProgress.livesLost === 0 ? challengeProgress.perfectBurgers : 0;
+                    break;
+            }
+
+            // Update UI
+            const progressEl = document.getElementById('challengeProgress');
+            const currentProgressEl = document.getElementById('challengeCurrentProgress');
+            const targetProgressEl = document.getElementById('challengeTargetProgress');
+            const progressBarEl = document.getElementById('challengeProgressBar');
+            const descriptionEl = document.getElementById('challengeDescription');
+
+            if (progressEl && currentProgressEl && targetProgressEl && progressBarEl && descriptionEl) {
+                currentProgressEl.textContent = Math.min(progress, currentDailyChallenge.target);
+                targetProgressEl.textContent = currentDailyChallenge.target;
+                descriptionEl.textContent = currentDailyChallenge.description;
+
+                const progressPercent = Math.min((progress / currentDailyChallenge.target) * 100, 100);
+                progressBarEl.style.width = `${progressPercent}%`;
+
+                progressEl.classList.remove('hidden');
+
+                // Check completion
+                if (progress >= currentDailyChallenge.target && !currentDailyChallenge.completed) {
+                    completeDailyChallenge();
+                }
+            }
+        }
+
+        async function completeDailyChallenge() {
+            if (!currentDailyChallenge || currentDailyChallenge.completed) return;
+
+            currentDailyChallenge.completed = true;
+            
+            // Save completion to database
+            await saveDailyChallengeCompletion();
+            
+            // Show completion effect
+            showChallengeCompletionEffect();
+            
+            // Update banner
+            updateDailyChallengeBanner();
+            
+            console.log('🏆 Daily challenge completed!', currentDailyChallenge);
+        }
+
+        async function saveDailyChallengeCompletion() {
+            const completionData = {
+                phone_number: gameState.player.phone,
+                player_name: gameState.player.name || 'لاعب مجهول',
+                challenge_id: currentDailyChallenge.id,
+                challenge_name: currentDailyChallenge.name,
+                completion_date: new Date().toISOString().split('T')[0],
+                reward_type: currentDailyChallenge.reward,
+                final_score: gameState.score,
+                created_at: new Date().toISOString()
+            };
+
+            if (gameState.offlineMode) {
+                saveDataOffline('daily_challenges', completionData);
+                return;
+            }
+
+            if (!gameState.supabaseConnected || !supabase) {
+                saveDataOffline('daily_challenges', completionData);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('daily_challenges')
+                    .insert([completionData]);
+
+                if (error) throw error;
+
+                console.log('✅ Daily challenge completion saved:', data);
+                
+            } catch (error) {
+                console.error('❌ Error saving daily challenge completion:', error);
+                saveDataOffline('daily_challenges', completionData);
+            }
+        }
+
+        function showChallengeCompletionEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'level-up-effect';
+            effect.innerHTML = `
+                <div class="text-4xl mb-2">🏆</div>
+                <div class="text-xl">تحدي مكتمل!</div>
+                <div class="text-lg">${currentDailyChallenge.name}</div>
+                <div class="text-sm opacity-90">مكافأة ${currentDailyChallenge.reward}</div>
+            `;
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 3000);
+            
+            playSound('reward');
+        }
+
+        function checkChallengeCompletion() {
+            return currentDailyChallenge && currentDailyChallenge.completed;
+        }
+
+        function getChallengeRewardBonus() {
+            if (!currentDailyChallenge || !currentDailyChallenge.completed) return 0;
+            
+            const rewardBonuses = {
+                'برونزي': 25,
+                'فضي': 50,
+                'ذهبي': 100,
+                'ماسي': 5 // 5% additional discount
+            };
+            
+            return rewardBonuses[currentDailyChallenge.reward] || 0;
+        }
+
+        function showChallenges() {
+            document.getElementById('challengesModal').classList.remove('hidden');
+            updateChallengesList();
+        }
+
+        function closeChallenges() {
+            document.getElementById('challengesModal').classList.add('hidden');
+        }
+
+        function updateChallengesList() {
+            const challengesList = document.getElementById('challengesList');
+            if (!challengesList) return;
+
+            let html = '';
+            
+            if (currentDailyChallenge) {
+                const progress = getChallengeProgress(currentDailyChallenge);
+                const progressPercent = Math.min((progress / currentDailyChallenge.target) * 100, 100);
+                const isCompleted = currentDailyChallenge.completed;
+                const isActive = !isCompleted && progress > 0;
+                
+                html += `
+                    <div class="challenge-card ${isCompleted ? 'completed' : (isActive ? 'active' : '')}">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold">${currentDailyChallenge.name}</h4>
+                            <span class="text-sm opacity-75">${currentDailyChallenge.reward}</span>
+                        </div>
+                        <p class="text-sm opacity-90 mb-3">${currentDailyChallenge.description}</p>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>التقدم: ${Math.min(progress, currentDailyChallenge.target)}/${currentDailyChallenge.target}</span>
+                            <span>${isCompleted ? '✅ مكتمل' : Math.round(progressPercent) + '%'}</span>
+                        </div>
+                        <div class="challenge-progress">
+                            <div class="challenge-progress-bar" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Show other challenges as locked/preview
+            const otherChallenges = dailyChallenges.filter(c => c.id !== (currentDailyChallenge?.id || ''));
+            const randomOtherChallenges = otherChallenges.sort(() => 0.5 - Math.random()).slice(0, 2);
+            
+            randomOtherChallenges.forEach(challenge => {
+                html += `
+                    <div class="challenge-card opacity-50">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold">🔒 ${challenge.name}</h4>
+                            <span class="text-sm opacity-75">${challenge.reward}</span>
+                        </div>
+                        <p class="text-sm opacity-90">${challenge.description}</p>
+                        <p class="text-xs mt-2 opacity-75">متاح في أيام قادمة</p>
+                    </div>
+                `;
+            });
+            
+            challengesList.innerHTML = html;
+        }
+
+        function getChallengeProgress(challenge) {
+            switch (challenge.type) {
+                case 'ingredients':
+                    return challengeProgress.ingredients;
+                case 'speed_burgers':
+                    const timeElapsed = (Date.now() - challengeProgress.startTime) / 1000;
+                    return timeElapsed <= 120 ? challengeProgress.burgers : 0;
+                case 'combo':
+                    return challengeProgress.maxCombo;
+                case 'survival_time':
+                    return challengeProgress.livesLost === 0 ? challengeProgress.survivalTime : 0;
+                case 'level':
+                    return challengeProgress.level;
+                case 'perfect_burgers':
+                    return challengeProgress.livesLost === 0 ? challengeProgress.perfectBurgers : 0;
+                default:
+                    return 0;
+            }
+        }
+
+        // 📱 Enhanced Touch Controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchThreshold = 30;
+
+        function handleTouchStart(event) {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            event.preventDefault();
+            const touch = event.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }
+
+        function handleTouchMove(event) {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            event.preventDefault();
+        }
+
+        function handleTouchEnd(event) {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            event.preventDefault();
+            const touch = event.changedTouches[0];
+            const touchEndX = touch.clientX;
+            const touchEndY = touch.clientY;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            // Only process horizontal swipes
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > touchThreshold) {
+                if (deltaX > 0) {
+                    movePlayer('right');
+                } else {
+                    movePlayer('left');
+                }
+                
+                // Add visual feedback
+                const canvas = document.getElementById('gameCanvas');
+                canvas.classList.add('mobile-bounce');
+                setTimeout(() => {
+                    canvas.classList.remove('mobile-bounce');
+                }, 600);
+            }
+        }
+
+        // Initialize Audio Context
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                return true;
+            } catch (e) {
+                console.log('Web Audio API not supported');
+                soundEnabled = false;
+                return false;
+            }
+        }
+
+        // 📧 Email Verification Functions (Enhanced with better error handling)
+        async function sendVerificationCode(mode) {
+            const name = document.getElementById('playerName').value.trim() || 'البطل';
+            const email = document.getElementById('playerEmail').value.trim();
+            const phone = document.getElementById('playerPhone').value.trim();
+            
+            // Validate inputs
+            if (!email) {
+                showErrorMessage('يرجى إدخال البريد الإلكتروني');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showErrorMessage('يرجى إدخال إيميل صحيح');
+                return;
+            }
+            
+            if (!phone) {
+                showErrorMessage('يرجى إدخال رقم الجوال');
+                return;
+            }
+            
+            // Enhanced phone validation for Oman
+            const phoneRegex = /^[0-9]{8}$/;
+            if (!phoneRegex.test(phone)) {
+                showErrorMessage('يرجى إدخال رقم جوال صحيح (8 أرقام فقط - رقم عُماني)');
+                return;
+            }
+            
+            // Validate Omani mobile prefixes
+            const validPrefixes = ['9', '7', '6'];
+            if (!validPrefixes.includes(phone[0])) {
+                showErrorMessage('يرجى إدخال رقم عُماني صحيح (يبدأ بـ 9، 7، أو 6)');
+                return;
+            }
+            
+            // Show loading state
+            showSendingLoadingState(mode);
+            
+            // Generate verification code
+            const code = generateVerificationCode();
+            verificationData = {
+                code: code,
+                email: email,
+                expiryTime: Date.now() + (5 * 60 * 1000), // 5 minutes
+                attempts: 0,
+                maxAttempts: 3,
+                gameMode: mode,
+                verified: false
+            };
+            
+            // Store temporary player data
+            gameState.player.name = name;
+            gameState.player.email = email;
+            gameState.player.phone = phone;
+            gameState.gameMode = mode;
+            
+            // Check daily code usage
+            await checkDailyCodeUsage(phone);
+            
+            // Simulate email sending (since we don't have email service integrated)
+            try {
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                hideSendingLoadingState();
+                showSuccessMessage(`تم إرسال رمز التحقق بنجاح! 📧\n\nرمز التحقق: ${code}\n\n(في التطبيق الحقيقي سيتم إرسال الرمز عبر الإيميل)`);
+                
+                setTimeout(() => {
+                    showVerificationScreen();
+                    startResendTimer();
+                }, 2000);
+                
+            } catch (error) {
+                hideSendingLoadingState();
+                console.error('Error sending verification code:', error);
+                showErrorMessage('❌ حدث خطأ في إرسال رمز التحقق\n\nيرجى المحاولة مرة أخرى.');
+            }
+        }
+
+        function generateVerificationCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // 🎨 UI Functions for Loading and Messages (Enhanced for mobile)
+        function showSendingLoadingState(mode) {
+            // Disable all game mode buttons
+            const buttons = ['storyModeBtn', 'survivalModeBtn', 'timeAttackModeBtn'];
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.add('button-loading');
+                    btn.disabled = true;
+                }
+            });
+
+            // Show loading overlay
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'sendingLoadingOverlay';
+            loadingOverlay.className = 'sending-loading';
+            loadingOverlay.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl text-center max-w-sm mx-4">
+                    <div class="sending-spinner mx-auto mb-4"></div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                        جاري إرسال رمز التحقق...
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">
+                        يرجى الانتظار بينما نرسل الرمز إلى إيميلك
+                    </p>
+                    <div class="mt-4 text-xs text-gray-500">
+                        📧 هذا قد يستغرق بضع ثوانٍ
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(loadingOverlay);
+        }
+
+        function hideSendingLoadingState() {
+            // Re-enable all game mode buttons
+            const buttons = ['storyModeBtn', 'survivalModeBtn', 'timeAttackModeBtn'];
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.remove('button-loading');
+                    btn.disabled = false;
+                }
+            });
+
+            // Remove loading overlay
+            const loadingOverlay = document.getElementById('sendingLoadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.remove();
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'message-toast success';
+            toast.innerHTML = `
+                <div class="flex items-center justify-center mb-3">
+                    <div class="text-4xl">✅</div>
+                </div>
+                <div class="text-lg font-bold text-green-700 dark:text-green-300 mb-2">
+                    تم بنجاح!
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+
+        function showErrorMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'message-toast error';
+            toast.innerHTML = `
+                <div class="flex items-center justify-center mb-3">
+                    <div class="text-4xl">❌</div>
+                </div>
+                <div class="text-lg font-bold text-red-700 dark:text-red-300 mb-2">
+                    خطأ!
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                    ${message}
+                </div>
+                <button onclick="this.parentElement.remove()" class="mt-3 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm touch-btn">
+                    حسناً
+                </button>
+            `;
+            document.body.appendChild(toast);
+
+            // Auto remove after 10 seconds
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    toast.remove();
+                }
+            }, 10000);
+        }
+
+        function showVerificationScreen() {
+            document.getElementById('sentEmailDisplay').textContent = verificationData.email;
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('verificationScreen').classList.remove('hidden');
+            
+            // Focus on first input
+            setTimeout(() => {
+                document.getElementById('code1').focus();
+            }, 300);
+        }
+
+        function handleCodeInput(position) {
+            const input = document.getElementById(`code${position}`);
+            const value = input.value;
+            
+            // Only allow numbers
+            if (!/^\d$/.test(value)) {
+                input.value = '';
+                return;
+            }
+            
+            // Add visual feedback
+            input.classList.add('filled');
+            
+            // Move to next input
+            if (value && position < 6) {
+                document.getElementById(`code${position + 1}`).focus();
+            }
+            
+            // Check if all codes are filled
+            checkAllCodesFilled();
+        }
+
+        function handleCodeKeydown(event, position) {
+            // Handle backspace
+            if (event.key === 'Backspace') {
+                const input = document.getElementById(`code${position}`);
+                if (!input.value && position > 1) {
+                    document.getElementById(`code${position - 1}`).focus();
+                }
+                input.classList.remove('filled');
+            }
+            
+            // Handle Enter key
+            if (event.key === 'Enter') {
+                verifyCode();
+            }
+        }
+
+        function checkAllCodesFilled() {
+            let allFilled = true;
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`code${i}`);
+                if (!input.value) {
+                    allFilled = false;
+                    break;
+                }
+            }
+            
+            if (allFilled) {
+                // Auto-verify when all codes are filled
+                setTimeout(verifyCode, 500);
+            }
+        }
+
+        function verifyCode() {
+            let enteredCode = '';
+            for (let i = 1; i <= 6; i++) {
+                enteredCode += document.getElementById(`code${i}`).value;
+            }
+            
+            if (enteredCode.length !== 6) {
+                showVerificationError('يرجى إدخال رمز التحقق كاملاً');
+                return;
+            }
+            
+            // Check if code has expired
+            if (Date.now() > verificationData.expiryTime) {
+                showVerificationError('انتهت صلاحية الرمز. يرجى طلب رمز جديد.');
+                return;
+            }
+            
+            // Check attempts limit
+            verificationData.attempts++;
+            if (verificationData.attempts > verificationData.maxAttempts) {
+                showVerificationError('تم تجاوز عدد المحاولات المسموحة. يرجى طلب رمز جديد.');
+                return;
+            }
+            
+            // Verify code
+            if (enteredCode === verificationData.code) {
+                // Success!
+                verificationData.verified = true;
+                gameState.player.verified = true;
+                gameState.startTime = Date.now();
+                
+                // Play success sound
+                if (audioContext && soundEnabled) {
+                    playVerificationSuccessSound();
+                }
+                
+                // Show success message
+                showSuccessMessage('تم التحقق بنجاح! 🎉\nمرحباً بك في لعبة Hero Bite Burger');
+                
+                // Move to game after delay
+                setTimeout(() => {
+                    document.getElementById('verificationScreen').classList.add('hidden');
+                    document.getElementById('gameScreen').classList.remove('hidden');
+                    document.getElementById('playerNameDisplay').textContent = gameState.player.name;
+                    
+                    // Initialize audio and show instructions
+                    initAudio();
+                    
+                    // Initialize challenge progress
+                    challengeProgress.startTime = Date.now();
+                    challengeProgress.level = 1;
+                    challengeProgress.livesLost = 0;
+                    
+                    // Show game instructions for the selected mode
+                    setTimeout(() => {
+                        showGameInstructions(verificationData.gameMode);
+                    }, 500);
+                }, 1500);
+                
+            } else {
+                showVerificationError(`رمز التحقق غير صحيح. المحاولة ${verificationData.attempts} من ${verificationData.maxAttempts}`);
+                
+                // Clear inputs
+                for (let i = 1; i <= 6; i++) {
+                    const input = document.getElementById(`code${i}`);
+                    input.value = '';
+                    input.classList.remove('filled');
+                }
+                document.getElementById('code1').focus();
+            }
+        }
+
+        function showVerificationError(message) {
+            const errorEl = document.getElementById('verificationError');
+            errorEl.textContent = `❌ ${message}`;
+            errorEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                errorEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        function startResendTimer() {
+            let timeLeft = 60;
+            const timerEl = document.getElementById('timerSeconds');
+            const resendBtn = document.getElementById('resendButton');
+            const timerContainer = document.getElementById('resendTimer');
+            
+            resendBtn.classList.add('hidden');
+            timerContainer.classList.remove('hidden');
+            
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timerContainer.classList.add('hidden');
+                    resendBtn.classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        async function resendVerificationCode() {
+            // Show loading state
+            const resendBtn = document.getElementById('resendButton');
+            resendBtn.disabled = true;
+            resendBtn.classList.add('button-loading');
+            resendBtn.textContent = 'جاري الإرسال...';
+            
+            // Generate new code
+            const newCode = generateVerificationCode();
+            verificationData.code = newCode;
+            verificationData.expiryTime = Date.now() + (5 * 60 * 1000);
+            verificationData.attempts = 0;
+            
+            // Clear current inputs
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`code${i}`);
+                input.value = '';
+                input.classList.remove('filled');
+            }
+            
+            // Simulate resending
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                showSuccessMessage(`تم إرسال رمز جديد بنجاح! 📧\n\nرمز التحقق الجديد: ${newCode}`);
+                startResendTimer();
+                document.getElementById('code1').focus();
+            } catch (error) {
+                console.error('Error resending verification code:', error);
+                showErrorMessage('حدث خطأ أثناء إعادة الإرسال. يرجى المحاولة مرة أخرى.');
+            } finally {
+                resendBtn.disabled = false;
+                resendBtn.classList.remove('button-loading');
+                resendBtn.textContent = '📧 إعادة إرسال الرمز';
+            }
+        }
+
+        function backToWelcome() {
+            document.getElementById('verificationScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            
+            // Clear verification data
+            verificationData = {
+                code: '',
+                email: '',
+                expiryTime: 0,
+                attempts: 0,
+                maxAttempts: 3,
+                gameMode: '',
+                verified: false
+            };
+        }
+
+        function playVerificationSuccessSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            // Play success melody
+            const melody = [
+                {freq: 523.25, time: 0}, // C5
+                {freq: 659.25, time: 0.15}, // E5
+                {freq: 783.99, time: 0.3}, // G5
+                {freq: 1046.50, time: 0.45}, // C6
+            ];
+            
+            melody.forEach((note) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(note.freq, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                }, note.time * 1000);
+            });
+        }
+
+        // 🎮 Enhanced Game Functions with Challenge Integration
+        function showGameInstructions(mode) {
+            let modeText = '';
+            switch(mode) {
+                case 'story':
+                    modeText = 'وضع القصة - اجمع المكونات عبر 4 مراحل متزايدة الصعوبة';
+                    break;
+                case 'survival':
+                    modeText = 'وضع البقاء - اجمع أكبر عدد من المكونات بدون نهاية';
+                    break;
+                case 'timeAttack':
+                    modeText = 'وضع السرعة - لديك 60 ثانية فقط لجمع أكبر عدد من النقاط';
+                    break;
+            }
+            
+            let challengeText = '';
+            if (currentDailyChallenge && !currentDailyChallenge.completed) {
+                challengeText = `\n\n🏆 تحدي اليوم: ${currentDailyChallenge.description}`;
+            }
+            
+            showSuccessMessage(`🎮 بدء ${modeText}\n\n🎯 اجمع 4 مكونات لكل برجر\n🍔 اصنع 3 برجرز للحصول على خصم\n⚠️ تجنب الأطعمة الضارة!${challengeText}`);
+        }
+
+        function startGame() {
+            if (!gameState.player.verified) {
+                showErrorMessage('يرجى التحقق من الإيميل أولاً');
+                return;
+            }
+
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            gameState.startTime = Date.now();
+            
+            // Reset game state
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.burgers = 0;
+            gameState.level = 1;
+            gameState.combo = 0;
+            gameState.multiplier = 1;
+            gameState.currentBurgerIngredients = [false, false, false, false];
+            gameState.ingredients = [];
+            gameState.enemies = [];
+            gameState.stats.totalIngredientsCollected = 0;
+            
+            // Reset challenge progress
+            challengeProgress = {
+                ingredients: 0,
+                burgers: 0,
+                maxCombo: 0,
+                survivalTime: 0,
+                level: 1,
+                perfectBurgers: 0,
+                livesLost: 0,
+                startTime: Date.now()
+            };
+            
+            // Set mode-specific settings
+            if (gameState.gameMode === 'timeAttack') {
+                gameState.timeLeft = 60;
+                startTimeAttackTimer();
+            }
+            
+            // Update UI
+            document.getElementById('startGameBtn').classList.add('hidden');
+            document.getElementById('burgerProgress').classList.remove('hidden');
+            updateGameUI();
+            updateChallengeProgress();
+            
+            // Start game loops
+            startGameLoop();
+            startSpawnLoop();
+            
+            // Setup controls
+            setupGameControls();
+            
+            playSound('start');
+        }
+
+        function updateGameUI() {
+            document.getElementById('scoreDisplay').textContent = gameState.score;
+            document.getElementById('burgersDisplay').textContent = `${gameState.burgers}/3`;
+            document.getElementById('levelDisplay').textContent = gameState.level;
+            document.getElementById('currentXP').textContent = gameState.player.xp;
+            document.getElementById('nextLevelXP').textContent = gameState.player.nextLevelXP;
+            
+            // Update lives display
+            const hearts = '❤️'.repeat(gameState.lives) + '🖤'.repeat(3 - gameState.lives);
+            document.getElementById('livesDisplay').textContent = hearts;
+            
+            // Update XP bar
+            const xpPercent = (gameState.player.xp / gameState.player.nextLevelXP) * 100;
+            document.getElementById('xpBar').style.width = `${xpPercent}%`;
+            
+            // Update burger progress
+            updateBurgerProgress();
+            
+            // Update challenge progress
+            updateChallengeProgress();
+        }
+
+        function updateBurgerProgress() {
+            const ingredients = ['lettuce', 'tomato', 'cheese', 'meat'];
+            ingredients.forEach((ingredient, index) => {
+                const statusEl = document.getElementById(`${ingredient}-status`);
+                if (gameState.currentBurgerIngredients[index]) {
+                    statusEl.classList.add('bg-green-200', 'dark:bg-green-800');
+                    statusEl.classList.remove('bg-gray-100', 'dark:bg-gray-700');
+                } else {
+                    statusEl.classList.remove('bg-green-200', 'dark:bg-green-800');
+                    statusEl.classList.add('bg-gray-100', 'dark:bg-gray-700');
+                }
+            });
+        }
+
+        function setupGameControls() {
+            const leftBtn = document.getElementById('leftBtn');
+            const rightBtn = document.getElementById('rightBtn');
+            
+            // Touch controls
+            leftBtn.addEventListener('touchstart', () => movePlayer('left'));
+            rightBtn.addEventListener('touchstart', () => movePlayer('right'));
+            
+            // Click controls
+            leftBtn.addEventListener('click', () => movePlayer('left'));
+            rightBtn.addEventListener('click', () => movePlayer('right'));
+            
+            // Keyboard controls
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        function handleKeyPress(event) {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            switch(event.key) {
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    movePlayer('left');
+                    event.preventDefault();
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    movePlayer('right');
+                    event.preventDefault();
+                    break;
+                case ' ':
+                case 'Escape':
+                    pauseGame();
+                    event.preventDefault();
+                    break;
+            }
+        }
+
+        function movePlayer(direction) {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            const hero = document.getElementById('hero');
+            const canvas = document.getElementById('gameCanvas');
+            const canvasWidth = canvas.offsetWidth;
+            const heroWidth = 60;
+            
+            const moveDistance = 30;
+            
+            if (direction === 'left') {
+                gameState.player.x = Math.max(0, gameState.player.x - moveDistance);
+            } else {
+                gameState.player.x = Math.min(canvasWidth - heroWidth, gameState.player.x + moveDistance);
+            }
+            
+            hero.style.left = `${gameState.player.x}px`;
+            
+            playSound('move');
+        }
+
+        function startGameLoop() {
+            gameState.gameTimer = setInterval(() => {
+                if (!gameState.isPlaying || gameState.isPaused) return;
+                
+                updateIngredients();
+                updateEnemies();
+                checkCollisions();
+                updateGameUI();
+                
+                // Update survival time for challenges
+                challengeProgress.survivalTime = (Date.now() - challengeProgress.startTime) / 1000;
+                
+                // Check win condition
+                if (gameState.burgers >= 3) {
+                    endGame(true);
+                }
+                
+                // Check lose condition
+                if (gameState.lives <= 0) {
+                    endGame(false);
+                }
+                
+            }, 1000 / 60); // 60 FPS
+        }
+
+        function startSpawnLoop() {
+            gameState.spawnTimer = setInterval(() => {
+                if (!gameState.isPlaying || gameState.isPaused) return;
+                
+                spawnIngredient();
+                
+                // Occasionally spawn enemies
+                if (Math.random() < 0.3) {
+                    spawnEnemy();
+                }
+                
+            }, 1500); // Spawn every 1.5 seconds
+        }
+
+        function spawnIngredient() {
+            const canvas = document.getElementById('gameCanvas');
+            const types = [
+                { emoji: '🥬', points: 5, rarity: 'common', index: 0 },
+                { emoji: '🍅', points: 8, rarity: 'common', index: 1 },
+                { emoji: '🧀', points: 12, rarity: 'rare', index: 2 },
+                { emoji: '🥩', points: 20, rarity: 'legendary', index: 3 }
+            ];
+            
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            const ingredient = document.createElement('div');
+            ingredient.className = `ingredient ${type.rarity}`;
+            ingredient.textContent = type.emoji;
+            ingredient.style.left = `${Math.random() * (canvas.offsetWidth - 35)}px`;
+            ingredient.style.top = '0px';
+            ingredient.dataset.points = type.points;
+            ingredient.dataset.type = type.index;
+            ingredient.dataset.y = '0';
+            
+            canvas.appendChild(ingredient);
+            gameState.ingredients.push({
+                element: ingredient,
+                y: 0,
+                points: type.points,
+                type: type.index
+            });
+        }
+
+        function spawnEnemy() {
+            const canvas = document.getElementById('gameCanvas');
+            const types = ['🥤', '🍟', '🍿'];
+            
+            const enemy = document.createElement('div');
+            enemy.className = 'enemy';
+            enemy.textContent = types[Math.floor(Math.random() * types.length)];
+            enemy.style.left = `${Math.random() * (canvas.offsetWidth - 35)}px`;
+            enemy.style.top = '0px';
+            enemy.dataset.y = '0';
+            
+            canvas.appendChild(enemy);
+            gameState.enemies.push({
+                element: enemy,
+                y: 0
+            });
+        }
+
+        function updateIngredients() {
+            gameState.ingredients = gameState.ingredients.filter(ingredient => {
+                ingredient.y += 2; // Fall speed
+                ingredient.element.style.top = `${ingredient.y}px`;
+                
+                // Remove if off screen
+                if (ingredient.y > 400) {
+                    ingredient.element.remove();
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+
+        function updateEnemies() {
+            gameState.enemies = gameState.enemies.filter(enemy => {
+                enemy.y += 3; // Fall speed (faster than ingredients)
+                enemy.element.style.top = `${enemy.y}px`;
+                
+                // Remove if off screen
+                if (enemy.y > 400) {
+                    enemy.element.remove();
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+
+        function checkCollisions() {
+            const heroRect = {
+                x: gameState.player.x,
+                y: gameState.player.y,
+                width: 60,
+                height: 60
+            };
+            
+            // Check ingredient collisions
+            gameState.ingredients = gameState.ingredients.filter(ingredient => {
+                const ingredientRect = {
+                    x: parseInt(ingredient.element.style.left),
+                    y: ingredient.y,
+                    width: 35,
+                    height: 35
+                };
+                
+                if (isColliding(heroRect, ingredientRect)) {
+                    collectIngredient(ingredient);
+                    ingredient.element.remove();
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Check enemy collisions
+            gameState.enemies = gameState.enemies.filter(enemy => {
+                const enemyRect = {
+                    x: parseInt(enemy.element.style.left),
+                    y: enemy.y,
+                    width: 35,
+                    height: 35
+                };
+                
+                if (isColliding(heroRect, enemyRect)) {
+                    takeDamage();
+                    enemy.element.remove();
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+
+        function isColliding(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function collectIngredient(ingredient) {
+            // Update combo system
+            const now = Date.now();
+            if (now - gameState.lastCollectTime < gameState.comboTimeLimit) {
+                gameState.combo++;
+                gameState.multiplier = Math.min(gameState.maxMultiplier, 1 + Math.floor(gameState.combo / 3));
+            } else {
+                gameState.combo = 1;
+                gameState.multiplier = 1;
+            }
+            
+            gameState.lastCollectTime = now;
+            gameState.bestCombo = Math.max(gameState.bestCombo, gameState.combo);
+            
+            // Update challenge progress
+            challengeProgress.ingredients++;
+            challengeProgress.maxCombo = Math.max(challengeProgress.maxCombo, gameState.combo);
+            
+            // Calculate points with multiplier
+            const basePoints = ingredient.points;
+            const finalPoints = basePoints * gameState.multiplier;
+            gameState.score += finalPoints;
+            
+            // Update statistics
+            gameState.stats.totalIngredientsCollected++;
+            const ingredientNames = ['lettuceCollected', 'tomatoCollected', 'cheeseCollected', 'meatCollected'];
+            gameState.stats[ingredientNames[ingredient.type]]++;
+            
+            // Update burger progress
+            gameState.currentBurgerIngredients[ingredient.type] = true;
+            
+            // Check if burger is complete
+            if (gameState.currentBurgerIngredients.every(ingredient => ingredient)) {
+                completeBurger();
+            }
+            
+            // Add XP and check level up
+            addXP(Math.floor(basePoints / 2));
+            
+            // Show points popup
+            showPointsPopup(finalPoints, ingredient.element);
+            
+            // Show combo if active
+            if (gameState.combo > 1) {
+                showComboDisplay();
+            }
+            
+            // Play sound
+            playSound('collect');
+            
+            // Visual feedback
+            document.getElementById('hero').classList.add('collect-effect');
+            setTimeout(() => {
+                document.getElementById('hero').classList.remove('collect-effect');
+            }, 300);
+        }
+
+        function completeBurger() {
+            gameState.burgers++;
+            challengeProgress.burgers++;
+            
+            // Check if this is a perfect burger (no lives lost)
+            if (challengeProgress.livesLost === 0) {
+                challengeProgress.perfectBurgers++;
+            }
+            
+            gameState.currentBurgerIngredients = [false, false, false, false];
+            
+            // Bonus points for completing burger
+            const bonusPoints = 50 + (gameState.level * 10);
+            gameState.score += bonusPoints;
+            
+            // Show completion effect
+            showBurgerCompleteEffect();
+            
+            playSound('complete');
+        }
+
+        function takeDamage() {
+            gameState.lives--;
+            challengeProgress.livesLost++;
+            gameState.combo = 0;
+            gameState.multiplier = 1;
+            
+            // Visual feedback
+            document.getElementById('hero').classList.add('damage-effect');
+            setTimeout(() => {
+                document.getElementById('hero').classList.remove('damage-effect');
+            }, 500);
+            
+            playSound('damage');
+        }
+
+        function showPointsPopup(points, element) {
+            const popup = document.createElement('div');
+            popup.className = 'points-popup';
+            popup.textContent = `+${points}`;
+            popup.style.left = element.style.left;
+            popup.style.top = element.style.top;
+            
+            document.getElementById('gameCanvas').appendChild(popup);
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 2000);
+        }
+
+        function showComboDisplay() {
+            const comboEl = document.getElementById('comboDisplay');
+            const comboCount = document.getElementById('comboCount');
+            
+            comboCount.textContent = gameState.combo;
+            comboEl.classList.remove('hidden');
+            
+            // Hide after 3 seconds
+            clearTimeout(comboEl.hideTimer);
+            comboEl.hideTimer = setTimeout(() => {
+                comboEl.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showBurgerCompleteEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'level-up-effect';
+            effect.textContent = `🍔 برجر مكتمل! +${50 + (gameState.level * 10)} نقطة`;
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 2000);
+        }
+
+        function addXP(amount) {
+            gameState.player.xp += amount;
+            
+            if (gameState.player.xp >= gameState.player.nextLevelXP) {
+                levelUp();
+            }
+        }
+
+        function levelUp() {
+            gameState.player.level++;
+            gameState.level = gameState.player.level;
+            challengeProgress.level = gameState.level;
+            gameState.player.xp = 0;
+            gameState.player.nextLevelXP = Math.floor(gameState.player.nextLevelXP * 1.5);
+            
+            const effect = document.createElement('div');
+            effect.className = 'level-up-effect';
+            effect.textContent = `🌟 المستوى ${gameState.level}!`;
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 2000);
+            
+            playSound('levelup');
+        }
+
+        function pauseGame() {
+            if (!gameState.isPlaying) return;
+            
+            gameState.isPaused = !gameState.isPaused;
+            
+            const pauseBtn = document.getElementById('pauseBtn');
+            const pauseIndicator = document.getElementById('pauseIndicator');
+            const canvas = document.getElementById('gameCanvas');
+            
+            if (gameState.isPaused) {
+                pauseBtn.textContent = '▶️';
+                pauseIndicator.classList.remove('hidden');
+                canvas.classList.add('game-paused');
+            } else {
+                pauseBtn.textContent = '⏸️';
+                pauseIndicator.classList.add('hidden');
+                canvas.classList.remove('game-paused');
+            }
+        }
+
+        function startTimeAttackTimer() {
+            const timer = setInterval(() => {
+                if (!gameState.isPlaying || gameState.isPaused) return;
+                
+                gameState.timeLeft--;
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        async function endGame(won) {
+            gameState.isPlaying = false;
+            gameState.endTime = Date.now();
+            
+            // Clear timers
+            if (gameState.gameTimer) {
+                clearInterval(gameState.gameTimer);
+            }
+            if (gameState.spawnTimer) {
+                clearInterval(gameState.spawnTimer);
+            }
+            
+            // Save player data to Supabase
+            await savePlayerData();
+            
+            // Show game over screen
+            showGameOverScreen(won);
+        }
+
+        function showGameOverScreen(won) {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            // Update final stats
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalBurgers').textContent = gameState.burgers;
+            document.getElementById('finalLevel').textContent = gameState.level;
+            document.getElementById('finalCombo').textContent = gameState.bestCombo;
+            
+            const gameOverEmoji = document.getElementById('gameOverEmoji');
+            const gameOverTitle = document.getElementById('gameOverTitle');
+            
+            // Check challenge completion
+            const challengeCompleted = currentDailyChallenge && checkChallengeCompletion();
+            if (challengeCompleted) {
+                const challengeCompletionEl = document.getElementById('challengeCompletion');
+                const challengeCompletionText = document.getElementById('challengeCompletionText');
+                
+                challengeCompletionText.textContent = `${currentDailyChallenge.name} - مكافأة ${currentDailyChallenge.reward}`;
+                challengeCompletionEl.classList.remove('hidden');
+            }
+            
+            if (gameState.burgers >= 3) {
+                gameOverEmoji.textContent = '🎉';
+                gameOverTitle.textContent = 'ممتاز! حققت 3 برجرز!';
+                document.getElementById('discountSection').classList.remove('hidden');
+            } else if (won) {
+                gameOverEmoji.textContent = '🎊';
+                gameOverTitle.textContent = 'لعبة رائعة!';
+            } else {
+                gameOverEmoji.textContent = '😅';
+                gameOverTitle.textContent = 'محاولة جيدة!';
+            }
+        }
+
+        async function spinDiscountWheel() {
+            const discounts = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+            let discountPercent = discounts[Math.floor(Math.random() * discounts.length)];
+            
+            // Add challenge bonus
+            const challengeBonus = getChallengeRewardBonus();
+            if (challengeBonus === 5) { // 5% additional discount for Diamond reward
+                discountPercent = Math.min(discountPercent + challengeBonus, 50);
+            }
+            
+            const discountCode = generateDiscountCode(discountPercent);
+            
+            // Save discount code to Supabase
+            await saveDiscountCode(discountPercent, discountCode);
+            
+            // Hide spin section, show result
+            document.getElementById('discountSection').classList.add('hidden');
+            document.getElementById('discountResult').classList.remove('hidden');
+            
+            // Update display
+            document.getElementById('discountPercent').textContent = `${discountPercent}%`;
+            document.getElementById('discountCode').textContent = discountCode;
+            
+            playSound('reward');
+        }
+
+        function generateDiscountCode(percent) {
+            const prefix = 'HERO';
+            const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `${prefix}${percent}-${suffix}`;
+        }
+
+        function playAgain() {
+            // Reset game state
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.burgers = 0;
+            gameState.level = 1;
+            gameState.combo = 0;
+            gameState.multiplier = 1;
+            gameState.currentBurgerIngredients = [false, false, false, false];
+            gameState.ingredients = [];
+            gameState.enemies = [];
+            
+            // Reset challenge progress
+            challengeProgress = {
+                ingredients: 0,
+                burgers: 0,
+                maxCombo: 0,
+                survivalTime: 0,
+                level: 1,
+                perfectBurgers: 0,
+                livesLost: 0,
+                startTime: Date.now()
+            };
+            
+            // Clear canvas
+            const canvas = document.getElementById('gameCanvas');
+            const ingredients = canvas.querySelectorAll('.ingredient');
+            const enemies = canvas.querySelectorAll('.enemy');
+            ingredients.forEach(el => el.remove());
+            enemies.forEach(el => el.remove());
+            
+            // Show game screen
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('startGameBtn').classList.remove('hidden');
+            document.getElementById('burgerProgress').classList.add('hidden');
+            
+            // Hide challenge completion
+            document.getElementById('challengeCompletion').classList.add('hidden');
+            
+            updateGameUI();
+        }
+
+        function shareResults() {
+            const challengeText = currentDailyChallenge && currentDailyChallenge.completed ? ` و أكملت تحدي "${currentDailyChallenge.name}"` : '';
+            const text = `🎮 لعبت Hero Bite Burger وحققت ${gameState.score} نقطة و ${gameState.burgers} برجر${challengeText}!\n\n🍔 جرب اللعبة واحصل على خصومات حقيقية من Hero Bite Burger`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Hero Bite Burger - نتيجتي',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers without native sharing
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text + '\n' + window.location.href);
+                    showSuccessMessage('تم نسخ النتيجة! شاركها مع أصدقائك 📋');
+                } else {
+                    showSuccessMessage('شارك هذا النص:\n\n' + text);
+                }
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                let frequency = 440;
+                let duration = 0.1;
+                
+                switch(type) {
+                    case 'collect':
+                        frequency = 523.25; // C5
+                        duration = 0.2;
+                        break;
+                    case 'complete':
+                        frequency = 659.25; // E5
+                        duration = 0.3;
+                        break;
+                    case 'damage':
+                        frequency = 196.00; // G3
+                        duration = 0.4;
+                        break;
+                    case 'levelup':
+                        frequency = 783.99; // G5
+                        duration = 0.5;
+                        break;
+                    case 'reward':
+                        frequency = 1046.50; // C6
+                        duration = 0.6;
+                        break;
+                    case 'start':
+                        frequency = 440.00; // A4
+                        duration = 0.3;
+                        break;
+                    case 'move':
+                        frequency = 293.66; // D4
+                        duration = 0.05;
+                        break;
+                }
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.type = 'sine';
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+                
+            } catch (error) {
+                console.log('Sound play error:', error);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundIcon = document.getElementById('soundIcon');
+            soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+            
+            if (soundEnabled && !audioContext) {
+                initAudio();
+            }
+        }
+
+        function showInstructions() {
+            document.getElementById('instructionsModal').classList.remove('hidden');
+        }
+
+        function closeInstructions() {
+            document.getElementById('instructionsModal').classList.add('hidden');
+        }
+
+        // Initialize game with enhanced error handling
+        window.addEventListener('load', async () => {
+            try {
+                // Test Supabase connection with retry logic
+                await testSupabaseConnection();
+                
+                // Initialize audio on first user interaction
+                document.addEventListener('click', function initAudioOnInteraction() {
+                    if (!audioContext) {
+                        initAudio();
+                    }
+                    document.removeEventListener('click', initAudioOnInteraction);
+                }, { once: true });
+                
+                // Try to reconnect if connection fails later
+                setInterval(async () => {
+                    if (!gameState.supabaseConnected && !gameState.offlineMode) {
+                        console.log('🔄 Attempting to reconnect to Supabase...');
+                        await testSupabaseConnection(1); // Single retry attempt
+                    }
+                }, 60000); // Check every minute
+                
+            } catch (error) {
+                console.error('❌ Error during initialization:', error);
+                // Continue with offline mode
+                enableOfflineMode();
+            }
+        });
+
+        // 🔄 Auto-retry connection on visibility change (when user returns to tab)
+        document.addEventListener('visibilitychange', async () => {
+            if (!document.hidden && gameState.offlineMode) {
+                console.log('🔄 Tab became visible, attempting to reconnect...');
+                await testSupabaseConnection(1);
+            }
+        });
+    </script>
+
+
+</body></html>
