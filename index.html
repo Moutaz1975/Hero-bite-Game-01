@@ -1,6 +1,22 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdn.jsdelivr.net https://tooxaqftgaucbuzfahsr.supabase.co https://*.supabase.co;">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdn.jsdelivr.net https://tooxaqftgaucbuzfahsr.supabase.co https://*.supabase.co;">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdn.jsdelivr.net https://tooxaqftgaucbuzfahsr.supabase.co https://*.supabase.co;">
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self' data: blob:;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.tailwindcss.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://tooxaqftgaucbuzfahsr.supabase.co https://*.supabase.co https://cdn.jsdelivr.net;
+    img-src 'self' data: https:;
+    frame-src 'self' https://www.youtube.com https://trytako.com;
+    child-src 'self';
+    manifest-src 'self';
+    worker-src 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content;">
+
+    <!-- Optimized CSP with Supabase support -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' https://tooxaqftgaucbuzfahsr.supabase.co https://*.supabase.co wss://tooxaqftgaucbuzfahsr.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com https://pfst.cf2.poecdn.net https://qph.cf2.poecdn.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https://pfst.cf2.poecdn.net https://qph.cf2.poecdn.net https://i.imgur.com https://picsum.photos https://images.unsplash.com; frame-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; upgrade-insecure-requests;">
+    
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hero Bite Burger - لعبة بطل البرجر</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1501,7 +1517,7 @@
                     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
                     
                     const { data, error } = await supabase
-                        .from('players_data')
+                        .from('user_profiles')
                         .select('id')
                         .limit(1)
                         .abortSignal(controller.signal);
@@ -1562,20 +1578,20 @@
         async function savePlayerDataWithRetry(playerData, retries = 3) {
             if (gameState.offlineMode) {
                 // Store data offline
-                saveDataOffline('players_data', playerData);
+                saveDataOffline('game_sessions', playerData);
                 return;
             }
 
             if (!gameState.supabaseConnected || !supabase) {
                 console.log('📊 Supabase not connected, saving offline');
-                saveDataOffline('players_data', playerData);
+                saveDataOffline('game_sessions', playerData);
                 return;
             }
 
             for (let attempt = 1; attempt <= retries; attempt++) {
                 try {
                     const { data, error } = await supabase
-                        .from('players_data')
+                        .from('game_sessions')
                         .insert([playerData]);
 
                     if (error) {
@@ -1590,7 +1606,7 @@
                     
                     if (attempt === retries) {
                         // Save offline as fallback
-                        saveDataOffline('players_data', playerData);
+                        saveDataOffline('game_sessions', playerData);
                         console.log('💾 Data saved offline as fallback');
                     } else {
                         // Wait before retry
@@ -1607,18 +1623,19 @@
                     (Date.now() - gameState.startTime) / 1000;
 
                 const playerData = {
-                    player_name: gameState.player.name || 'لاعب مجهول',
-                    email: gameState.player.email,
-                    phone_number: gameState.player.phone,
-                    final_score: gameState.score,
-                    burgers_completed: gameState.burgers,
+                    user_email: gameState.player.email,
+                    user_phone: gameState.player.phone,
+                    user_name: gameState.player.name || 'لاعب مجهول',
+                    score: gameState.score,
+                    burgers_made: gameState.burgers,
                     player_level: gameState.level,
                     game_mode: gameState.gameMode,
-                    play_time: Math.round(playTime),
+                    play_time_seconds: Math.round(playTime),
                     ingredients_collected: gameState.stats.totalIngredientsCollected,
                     best_combo: gameState.bestCombo,
+                    game_won: gameState.burgers >= 3,
                     challenge_completed: currentDailyChallenge ? checkChallengeCompletion() : false,
-                    created_at: new Date().toISOString()
+                    completed_at: new Date().toISOString()
                 };
 
                 await savePlayerDataWithRetry(playerData);
@@ -1631,20 +1648,20 @@
 
         async function saveDiscountCodeWithRetry(discountData, retries = 3) {
             if (gameState.offlineMode) {
-                saveDataOffline('discount_codes', discountData);
+                saveDataOffline('user_coupons', discountData);
                 return;
             }
 
             if (!gameState.supabaseConnected || !supabase) {
                 console.log('📊 Supabase not connected, saving discount offline');
-                saveDataOffline('discount_codes', discountData);
+                saveDataOffline('user_coupons', discountData);
                 return;
             }
 
             for (let attempt = 1; attempt <= retries; attempt++) {
                 try {
                     const { data, error } = await supabase
-                        .from('discount_codes')
+                        .from('user_coupons')
                         .insert([discountData]);
 
                     if (error) {
@@ -1658,7 +1675,7 @@
                     console.error(`❌ Error saving discount code (attempt ${attempt}):`, error);
                     
                     if (attempt === retries) {
-                        saveDataOffline('discount_codes', discountData);
+                        saveDataOffline('user_coupons', discountData);
                         console.log('💾 Discount code saved offline as fallback');
                     } else {
                         await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
@@ -1674,17 +1691,16 @@
                 expiryDate.setDate(today.getDate() + 1); // Expires tomorrow
 
                 const discountData = {
-                    player_name: gameState.player.name || 'لاعب مجهول',
-                    email: gameState.player.email,
-                    phone_number: gameState.player.phone,
-                    discount_code: discountCode,
-                    discount_percent: discountPercent,
-                    issued_date: today.toISOString().split('T')[0],
-                    expiry_date: expiryDate.toISOString().split('T')[0],
+                    user_email: gameState.player.email,
+                    user_phone: gameState.player.phone,
+                    user_name: gameState.player.name || 'لاعب مجهول',
+                    coupon_code: discountCode,
+                    discount_percentage: discountPercent,
+                    expires_at: expiryDate.toISOString(),
                     final_score: gameState.score,
                     player_level: gameState.level,
                     challenge_bonus: currentDailyChallenge && checkChallengeCompletion() ? getChallengeRewardBonus() : 0,
-                    created_at: new Date().toISOString()
+                    won_at: new Date().toISOString()
                 };
 
                 await saveDiscountCodeWithRetry(discountData);
@@ -1714,7 +1730,7 @@
             if (!gameState.supabaseConnected) return;
 
             try {
-                const tables = ['players_data', 'discount_codes'];
+                const tables = ['game_sessions', 'user_coupons'];
                 
                 for (const table of tables) {
                     const offlineKey = `heroburger_offline_${table}`;
@@ -1767,11 +1783,11 @@
                 const today = new Date().toISOString().split('T')[0];
                 
                 const { data, error } = await supabase
-                    .from('discount_codes')
-                    .select('discount_code, discount_percent, issued_date')
-                    .eq('phone_number', phone)
-                    .eq('issued_date', today)
-                    .order('created_at', { ascending: false })
+                    .from('user_coupons')
+                    .select('coupon_code, discount_percentage, won_at')
+                    .eq('user_phone', phone)
+                    .gte('won_at', today)
+                    .order('won_at', { ascending: false })
                     .limit(1);
 
                 if (error) {
@@ -1785,7 +1801,7 @@
                     // Show warning
                     const warningEl = document.getElementById('dailyCodeWarning');
                     warningEl.innerHTML = `
-                        ⚠️ تم إنشاء كود خصم ${data[0].discount_percent}% لهذا الرقم اليوم (${data[0].discount_code}). 
+                        ⚠️ تم إنشاء كود خصم ${data[0].discount_percentage}% لهذا الرقم اليوم (${data[0].coupon_code}). 
                         سيتم استبدال الكود السابق إذا أكملت 3 برجرز.
                     `;
                     warningEl.classList.remove('hidden');
@@ -1848,9 +1864,9 @@
                 const { data, error } = await supabase
                     .from('daily_challenges')
                     .select('*')
-                    .eq('phone_number', gameState.player.phone)
+                    .eq('user_phone', gameState.player.phone)
                     .eq('challenge_id', currentDailyChallenge.id)
-                    .eq('completion_date', today)
+                    .gte('completion_date', today)
                     .limit(1);
 
                 if (error) throw error;
@@ -1954,14 +1970,14 @@
 
         async function saveDailyChallengeCompletion() {
             const completionData = {
-                phone_number: gameState.player.phone,
-                player_name: gameState.player.name || 'لاعب مجهول',
+                user_phone: gameState.player.phone,
+                user_name: gameState.player.name || 'لاعب مجهول',
                 challenge_id: currentDailyChallenge.id,
                 challenge_name: currentDailyChallenge.name,
                 completion_date: new Date().toISOString().split('T')[0],
                 reward_type: currentDailyChallenge.reward,
                 final_score: gameState.score,
-                created_at: new Date().toISOString()
+                completed_at: new Date().toISOString()
             };
 
             if (gameState.offlineMode) {
@@ -3401,6 +3417,7 @@
             }
         });
     </script>
+
 
 
 </body></html>
